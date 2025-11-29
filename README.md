@@ -1,6 +1,6 @@
-# ICIDAP: Incident Detection & Analysis Platform
+# ICIDAP: Intelligent Cloud-Native Incident Detection & Automation Platform
 
-A cloud-native, AI-driven incident detection platform.
+A cloud-native, AI-driven incident detection platform that ingests logs/metrics/network events, runs anomaly detection + LLM incident summarization, exposes REST/GraphQL/gRPC APIs, and is deployable locally/k3s (or AWS free tier) with Terraform, Docker, CI/CD.
 
 ## Project Structure
 
