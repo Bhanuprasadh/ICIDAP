@@ -30,4 +30,35 @@ icidap/
 
 ## Getting Started
 
+### Prerequisites
+- Docker
+- Kind (Kubernetes in Docker)
+- Helm
+
+### 1. Setup Local Cluster
+```bash
+# Create cluster
+kind create cluster --config infra/k8s/kind-config.yaml --name icidap-cluster
+
+# Install Observability (Prometheus/Grafana/Loki)
+./scripts/setup_observability.sh
+
+# Install Messaging (Redpanda)
+./scripts/setup_messaging.sh
+```
+
+### 2. Deploy Ingestion Service
+```bash
+# Build images
+docker build -t icidap-ingestion:v1 ./services/ingestion
+docker build -t icidap-load-gen:v1 ./services/load-gen
+
+# Load into Kind
+kind load docker-image icidap-ingestion:v1 --name icidap-cluster
+kind load docker-image icidap-load-gen:v1 --name icidap-cluster
+
+# Deploy
+kubectl apply -f infra/k8s/ingestion-deployment.yaml
+```
+
 See `docs/runbook.md` for detailed setup instructions.

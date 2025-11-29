@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingestion-service
+  namespace: default
+  labels:
+    app: ingestion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingestion
+  template:
+    metadata:
+      labels:
+        app: ingestion
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: ingestion
+          image: icidap-ingestion:v1
+          imagePullPolicy: Never # Important for local kind images!
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingestion-service
+  namespace: default
+spec:
+  selector:
+    app: ingestion
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-gen
+  template:
+    metadata:
+      labels:
+        app: load-gen
+    spec:
+      containers:
+        - name: load-gen
+          image: icidap-load-gen:v1
+          imagePullPolicy: Never
+          env:
+            - name: TARGET_URL
+              value: "http://ingestion-service.default.svc.cluster.local/events"
